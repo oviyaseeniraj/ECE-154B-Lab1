@@ -107,7 +107,10 @@ always @(posedge clk) begin
         PCD <= 32'b0;
         PCPlus4D <= 32'b0;
     end
-    else if (!StallD_i) begin
+    if (!StallD_i) begin
+        // do nothing
+    end
+    else begin
         InstrD <= InstrF_i;
         PCD <= PCF_o;
         PCPlus4D <= PCPlus4F;
