@@ -105,7 +105,7 @@ module ucsbece154b_controller (
            instr_or_funct3:   ALUControlD = ALUcontrol_or;
            instr_and_funct3:  ALUControlD = ALUcontrol_and;  
            default: begin
-                              ALUControlD = 3'bxxx;
+                              ALUControlD = 3'b000;
                `ifdef SIM
                    $warning("Unsupported funct3 given: %h", funct3_i);
                `else
