@@ -134,9 +134,9 @@ always @(posedge clk) begin
         RD2E <= RD2D;
         PCE <= PCD;
         ImmExtE <= ImmExtD;
-        Rs1E_o <= InstrD[19:15];
-        Rs2E_o <= InstrD[24:20];
-        RdE_o <= InstrD[11:7];
+        Rs1E_o <= Rs1D_o;
+        Rs2E_o <= Rs2D_o;
+        RdE_o <= RdD;
         PCPlus4E <= PCPlus4D;
     end
 end
@@ -146,7 +146,7 @@ always @(posedge clk) begin
     begin
         ALUResultM_o <= ALUResultE;
         WriteDataM_o <= ForwardBEMuxOut;
-        ImmExtE <= ImmExtE;
+        ImmExtM <= ImmExtE;
         RdM_o <= RdE_o;
         PCPlus4M <= PCPlus4E;
     end
@@ -157,7 +157,7 @@ always @(posedge clk) begin
     begin
         ALUResultW <= ALUResultM_o;
         ReadDataW <= ReadDataM_i;
-        ImmExtW <= ImmExtE;
+        ImmExtW <= ImmExtM;
         PCPlus4W <= PCPlus4M;
         RdW_o <= RdM_o;
     end
