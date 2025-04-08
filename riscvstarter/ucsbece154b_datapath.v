@@ -102,7 +102,7 @@ ucsbece154b_alu alu (
 
 // Fetch-D pipeline register
 always @(posedge clk) begin
-    if (reset || FlushD_i) begin
+    if (FlushD_i) begin
         InstrD <= 32'b0;
         PCD <= 32'b0;
         PCPlus4D <= 32'b0;
@@ -116,7 +116,7 @@ end
 
 // Decode-Execute pipeline register
 always @(posedge clk) begin
-    if (reset || FlushE_i) begin
+    if (FlushE_i) begin
         RD1E <= 32'b0;
         RD2E <= 32'b0;
         PCE <= 32'b0;
@@ -140,13 +140,7 @@ end
 
 // Execute-Memory pipeline register
 always @(posedge clk) begin
-    if (reset) begin
-        ALUResultM_o <= 32'b0;
-        WriteDataM_o <= 32'b0;
-        ImmExtE <= 32'b0;
-        RdM_o <= 5'b0;
-        PCPlus4M <= 32'b0;
-    end else begin
+    begin
         ALUResultM_o <= ALUResultE;
         WriteDataM_o <= ForwardBEMuxOut;
         ImmExtE <= ImmExtE;
@@ -157,13 +151,7 @@ end
 
 // Memory-Writeback pipeline register
 always @(posedge clk) begin
-    if (reset) begin
-        ALUResultW <= 32'b0;
-        ReadDataW <= 32'b0;
-        ImmExtW <= 32'b0;
-        PCPlus4W <= 32'b0;
-        RdW_o <= 5'b0;
-    end else begin
+    begin
         ALUResultW <= ALUResultM_o;
         ReadDataW <= ReadDataM_i;
         ImmExtW <= ImmExtE;
