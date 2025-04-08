@@ -180,12 +180,15 @@ assign ALUSrcBMuxOut = (ALUSrcE_i) ? ImmExtE : ForwardBEMuxOut;
 assign SrcBE = ALUSrcBMuxOut;
 
 always @ (posedge reset or posedge clk) begin
-    if (StallF)
+    if (StallF_i) begin
         // do nothing
-    else if (reset)
+    end
+    else if (reset) begin
         PCF_o <= pc_start;
-    else
+    end
+    else begin
         PCF_o <= PCNext;
+    end
 end
 
 // Result mux
