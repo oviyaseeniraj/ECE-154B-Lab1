@@ -104,7 +104,7 @@ end
 
 
 // Register file
-ucsbece154a_rf rf (
+ucsbece154b_rf rf (
     .clk(clk),
     .a1_i(InstrD[19:15]),
     .a2_i(InstrD[24:20]),
@@ -154,7 +154,7 @@ assign ALUSrcBMuxOut = (ALUSrcE_i) ? ImmExtE : ForwardBEMuxOut;
 assign SrcBE = ALUSrcBMuxOut;
 
 // ALU
-ucsbece154a_alu alu (
+ucsbece154b_alu alu (
     .a_i(SrcAE),
     .b_i(SrcBE),
     .alucontrol_i(ALUControlE_i),
