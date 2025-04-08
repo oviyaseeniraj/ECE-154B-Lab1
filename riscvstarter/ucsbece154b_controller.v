@@ -52,6 +52,8 @@ module ucsbece154b_controller (
                      (op_i == instr_beq_op) ? 2'b01 : 2'b00;
  wire RtypeSub = funct7b5_i & op_i[5];
 
+ wire RegWriteE_o, RegWriteM_o;
+
  always @ * begin
     case (ALUOpD)
       2'b00: ALUControlE_o = ALUcontrol_add;  // Load/Store uses ADD
@@ -111,9 +113,11 @@ module ucsbece154b_controller (
  always @(posedge clk) begin
     if (reset) begin
         ALUSrcE_o <= 0;
+        RegWriteE_o <= 0;
     end
     else if (!StallD_o) begin
         ALUSrcE_o <= ALUSrcD;
+        RegWriteE_o <= RegWriteD;
     end
  end
 
@@ -121,10 +125,12 @@ module ucsbece154b_controller (
  always @(posedge clk) begin
     if (reset) begin
         MemWriteM_o <= 0;
+        RegWriteM_o <= 0;
         ResultSrcM_o <= 0;
     end
     else begin
         MemWriteM_o <= MemWriteD;
+        RegWriteM_o <= RegWriteE_o;
         ResultSrcM_o <= ResultSrcD;
     end
  end
@@ -136,7 +142,7 @@ module ucsbece154b_controller (
         ResultSrcW_o <= 0;
     end
     else begin
-        RegWriteW_o <= RegWriteD;
+        RegWriteW_o <= RegWriteE_o;
         ResultSrcW_o <= ResultSrcD;
     end
  end
