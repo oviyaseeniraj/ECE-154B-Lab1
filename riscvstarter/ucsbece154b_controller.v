@@ -54,6 +54,17 @@ module ucsbece154b_controller (
 
  reg RegWriteM_o;
 
+always @(posedge clk) begin
+    if (reset) begin
+        ALUSrcE_o <= 0;
+        ALUControlE_o <= ALUcontrol_add;
+        MemWriteM_o <= 0;
+        RegWriteW_o <= 0;
+        ResultSrcW_o <= MuxResult_aluout;
+        ResultSrcM_o <= MuxResult_aluout;
+    end 
+end
+
 
  always @ * begin
     case (ALUOpD)

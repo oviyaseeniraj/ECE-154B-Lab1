@@ -80,11 +80,21 @@ end
 assign PCPlus4 = PCF_o + 4;
 assign PCNext = PCSrcE_i ? PCTargetE : PCPlus4;
 
+// Initialize PC and pipeline registers properly
 always @(posedge clk) begin
     if (reset) begin
-        PCF_o <= 0;
-    end else if (!StallF_i) begin
+        PCF_o <= pc_start;       // Initialize to 0x00010000
+        PCPlus4F <= pc_start + 4; // Initialize PC+4
+        PCD <= 0;
+        PCPlus4D <= 0;
+        PCE <= 0;
+        PCPlus4E <= 0;
+        PCPlus4M <= 0;
+        PCPlus4W <= 0;
+    end
+    else if (!StallF_i) begin
         PCF_o <= PCNext;
+        PCPlus4F <= PCPlus4;     // Update PC+4 each cycle
     end
 end
 
@@ -205,5 +215,14 @@ assign ResultW = (ResultSrcW_i == 2'b00) ? ALUResultW :
                 (ResultSrcW_i == 2'b10) ? PCPlus4W :
                 (ResultSrcW_i == 2'b11) ? ImmExtW :
                 32'b0;
+
+// In ucsbece154b_datapath.v
+always @(posedge clk) begin
+    $display("PC: %h, Instr: %h", PCF_o, InstrF_i);
+    if (RegWriteW_i && RdW_o != 0)
+        $display("Writeback: x%0d = %h", RdW_o, ResultW);
+    if (MemWriteM_o)
+        $display("Memory Write: %h = %h", ALUResultM_o, WriteDataM_o);
+end
 
 endmodule
