@@ -101,11 +101,15 @@ end
 assign PCSrcE_o = (BranchD & ZeroE_i) | JumpD;
 
 // Execute Stage Control
-always @(posedge clk) begin
+always @(posedge clk or posedge reset) begin
     if (reset) begin
-        ALUSrcE_o <= SrcB_reg;
-    end else if (!StallD_o) begin
+        ALUSrcE_o <= SrcB_reg;        // Initialize to use register value
+        ALUControlE_o <= ALUcontrol_add;  // Initialize to ADD operation
+    end
+    else if (!StallD_o) begin
         ALUSrcE_o <= ALUSrcD;
+        // ALUControlE_o gets updated combinationally from ALU decoder
+        // No need to register it here as it's already set in the combinational block
     end
 end
 
