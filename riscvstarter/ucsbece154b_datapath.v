@@ -48,7 +48,6 @@ reg [31:0] WriteDataE;
 
 // Internal signals
 wire [31:0] PCNext, PCPlus4, PCTargetE;
-wire [31:0] ImmExt;
 wire [31:0] SrcAE, SrcBE, ALUResultE;
 wire [31:0] ResultW;
 wire [31:0] ForwardAEMuxOut, ForwardBEMuxOut;
@@ -68,12 +67,12 @@ assign PCTargetE = PCPlus4E + (ImmExtE << 1);
 // Immediate generator
 always @ * begin
     case (ImmSrcD_i)
-        imm_Itype: ImmExt = {{20{InstrD[31]}}, InstrD[31:20]};
-        imm_Stype: ImmExt = {{20{InstrD[31]}}, InstrD[31:25], InstrD[11:7]};
-        imm_Btype: ImmExt = {{20{InstrD[31]}}, InstrD[7], InstrD[30:25], InstrD[11:8], 1'b0};
-        imm_Utype: ImmExt = {InstrD[31:12], 12'b0};
-        imm_Jtype: ImmExt = {{12{InstrD[31]}}, InstrD[19:12], InstrD[20], InstrD[30:21], 1'b0};
-        default:   ImmExt = 32'b0;
+        imm_Itype: ImmExtD = {{20{InstrD[31]}}, InstrD[31:20]};
+        imm_Stype: ImmExtD = {{20{InstrD[31]}}, InstrD[31:25], InstrD[11:7]};
+        imm_Btype: ImmExtD = {{20{InstrD[31]}}, InstrD[7], InstrD[30:25], InstrD[11:8], 1'b0};
+        imm_Utype: ImmExtD = {InstrD[31:12], 12'b0};
+        imm_Jtype: ImmExtD = {{12{InstrD[31]}}, InstrD[19:12], InstrD[20], InstrD[30:21], 1'b0};
+        default:   ImmExtD = 32'b0;
     endcase
 end
 
