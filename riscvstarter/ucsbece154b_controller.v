@@ -68,13 +68,13 @@ module ucsbece154b_controller (
 
  always @ * begin
    case (op_i)          //          RW      ImmSrc      ALUSrc      MW      ResultSrc       br    ALUOp         jump
-	instr_lw_op:        controls = {1'b1,   imm_Itype,  ALUSrc_imm, 1'b0,   ResultSrc_load, 1'b0, ALUop_mem,    1'b0};       
-	instr_sw_op:        controls = {1'b0,   imm_Stype,  ALUSrc_imm, 1'b1,   2'b00,          1'b0, ALUop_mem,    1'b0};  
-	instr_Rtype_op:     controls = {1'b1,   3'b000,     ALUSrc_reg, 1'b0,   ResultSrc_ALU,  1'b0, ALUop_other,  1'b0};   
-	instr_beq_op:       controls = {1'b0,   imm_Btype,  ALUSrc_reg, 1'b0,   2'b00,          1'b1, ALUop_beq,    1'b0};   
-	instr_ItypeALU_op:  controls = {1'b1,   imm_Itype,  ALUSrc_imm, 1'b0,   ResultSrc_ALU,  1'b0, ALUop_other,  1'b0};    
-    instr_jal_op:       controls = {1'b1,   imm_Jtype,  ALUSrc_imm, 1'b0,   ResultSrc_jal,  1'b0, ALUop_other,  1'b1};
-    instr_lui_op:       controls = {1'b1,   imm_Utype,  ALUSrc_imm, 1'b0,   ResultSrc_lui,  1'b0, ALUop_other,  1'b0};
+	instr_lw_op:        controls = {1'b1,   imm_Itype,  1'b1,       1'b0,   2'b01,          1'b0, ALUop_mem,    1'b0};       
+	instr_sw_op:        controls = {1'b0,   imm_Stype,  1'b1,       1'b1,   2'b00,          1'b0, ALUop_mem,    1'b0};  
+	instr_Rtype_op:     controls = {1'b1,   3'b000,     1'b0,       1'b0,   2'b00,          1'b0, ALUop_other,  1'b0};   
+	instr_beq_op:       controls = {1'b0,   imm_Btype,  1'b0,       1'b0,   2'b00,          1'b1, ALUop_beq,    1'b0};   
+	instr_ItypeALU_op:  controls = {1'b1,   imm_Itype,  1'b1,       1'b0,   2'b00,          1'b0, ALUop_other,  1'b0};    
+    instr_jal_op:       controls = {1'b1,   imm_Jtype,  1'b1,       1'b0,   2'b10,          1'b0, ALUop_other,  1'b1};
+    instr_lui_op:       controls = {1'b1,   imm_Utype,  1'b1,       1'b0,   2'b11,          1'b0, ALUop_other,  1'b0};
 	default: begin	    
             controls = 12'bx_xxx_x_x_xx_x_xx_x;       
             `ifdef SIM
@@ -168,7 +168,7 @@ module ucsbece154b_controller (
  // Forwarding Unit
  always @ * begin
     // ForwardAE
-    if ((Rs1E_i != 0) && (Rs1E_i == RdM_i) && RegWriteM_o)
+    if ((Rs1E_i != 0) && (Rs1E_i == RdM_i) && RegWriteM)
         ForwardAE_o = 2'b10;
     else if ((Rs1E_i != 0) && (Rs1E_i == RdW_i) && RegWriteW_o)
         ForwardAE_o = 2'b01;
@@ -176,7 +176,7 @@ module ucsbece154b_controller (
         ForwardAE_o = 2'b00;
     
     // ForwardBE
-    if ((Rs2E_i != 0) && (Rs2E_i == RdM_i) && RegWriteM_o)
+    if ((Rs2E_i != 0) && (Rs2E_i == RdM_i) && RegWriteM)
         ForwardBE_o = 2'b10;
     else if ((Rs2E_i != 0) && (Rs2E_i == RdW_i) && RegWriteW_o)
         ForwardBE_o = 2'b01;
