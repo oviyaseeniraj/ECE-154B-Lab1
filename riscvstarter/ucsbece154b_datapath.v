@@ -41,14 +41,14 @@ module ucsbece154b_datapath (
 `include "ucsbece154b_defines.vh"
 
 // Pipeline registers
-reg [31:0] PCPlus4F, InstrD, PCPlus4D, ImmExtD, PCD, PCE;
+reg [31:0] InstrD, PCPlus4D, ImmExtD, PCD, PCE;
 reg [31:0] RD1E, RD2E, ImmExtE, PCPlus4E, ImmExtW;
 reg [31:0] ALUResultW, ReadDataW, PCPlus4W, PCPlus4M;
 reg [31:0] WriteDataE;
 
 // Internal signals
 wire [31:0] RD1D, RD2D;
-wire [31:0] PCNext, PCPlus4, PCTargetE;
+wire [31:0] PCNext, PCPlus4F, PCTargetE;
 wire [31:0] SrcAE, SrcBE, ALUResultE;
 wire [31:0] ResultW;
 wire [31:0] ForwardAEMuxOut, ForwardBEMuxOut;
@@ -64,6 +64,7 @@ assign Rs1D_o = InstrD[19:15];
 assign Rs2D_o = InstrD[24:20];
 
 assign PCTargetE = PCPlus4E + (ImmExtE << 1);
+assign PCPlus4F = PCF_o + 4;
 assign PCNext = PCSrcE_i ? PCTargetE : PCPlus4F; 
 
 // Immediate generator
