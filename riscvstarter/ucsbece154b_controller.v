@@ -39,8 +39,8 @@ module ucsbece154b_controller (
 
  // control signals
  // decode
- reg RegWriteD, MemWriteD, JumpD, BranchD, ALUSrcD; 
- reg [1:0] ResultSrcD;
+ wire RegWriteD, MemWriteD, JumpD, BranchD, ALUSrcD; 
+ wire [1:0] ResultSrcD;
  reg [2:0] ALUControlD;
 
  // execute
