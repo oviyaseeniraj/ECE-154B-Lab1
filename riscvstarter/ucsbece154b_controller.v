@@ -124,7 +124,7 @@ module ucsbece154b_controller (
 
  // Execute Stage Control Signals
  always @(posedge clk) begin
-    if (FlushE_o) begin
+    if (reset || FlushE_o) begin
         ALUSrcE_o <= 0;
         RegWriteE <= 0;
         MemWriteE <= 0;
@@ -133,7 +133,7 @@ module ucsbece154b_controller (
         ResultSrcE <= 2'b0;
         ALUControlE_o <= 3'b0;
     end
-    else if (!StallD_o) begin
+    else begin
         ALUSrcE_o <= ALUSrcD;
         RegWriteE <= RegWriteD;
         MemWriteE <= MemWriteD;
