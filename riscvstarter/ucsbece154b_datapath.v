@@ -63,7 +63,7 @@ assign funct7b5_o = InstrD[30];
 assign Rs1D_o = InstrD[19:15];
 assign Rs2D_o = InstrD[24:20];
 
-assign PCTargetE = PCPlus4E + (ImmExtE << 1);
+assign PCTargetE = PCE + ImmExtE;
 assign PCPlus4F = PCF_o + 4;
 assign PCNext = PCSrcE_i ? PCTargetE : PCPlus4F; 
 
@@ -166,11 +166,13 @@ end
 // Forwarding muxes
 assign ForwardAEMuxOut = (ForwardAE_i == 2'b10) ? ALUResultM_o :
                         (ForwardAE_i == 2'b01) ? ResultW :
-                        RD1E;
+                        (ForwardAE_i == 2'b00) ? RD1E :
+                        32'b0;
 
 assign ForwardBEMuxOut = (ForwardBE_i == 2'b10) ? ALUResultM_o :
                         (ForwardBE_i == 2'b01) ? ResultW :
-                        RD2E;
+                        (ForwardBE_i == 2'b00) ? RD2E :
+                        32'b0;
 
 // ALU source muxes
 assign SrcAE = ForwardAEMuxOut;
@@ -178,7 +180,9 @@ assign ALUSrcBMuxOut = (ALUSrcE_i) ? ImmExtE : ForwardBEMuxOut;
 assign SrcBE = ALUSrcBMuxOut;
 
 always @ (posedge reset or posedge clk) begin
-    if (reset)
+    if (StallF)
+        // do nothing
+    else if (reset)
         PCF_o <= pc_start;
     else
         PCF_o <= PCNext;
