@@ -64,7 +64,7 @@ assign Rs1D_o = InstrD[19:15];
 assign Rs2D_o = InstrD[24:20];
 
 assign PCTargetE = PCPlus4E + (ImmExtE << 1);
-assign PCNext = PCSrc_i ? PCTargetE : PCPlus4F; 
+assign PCNext = PCSrcE_i ? PCTargetE : PCPlus4F; 
 
 // Immediate generator
 always @ * begin
