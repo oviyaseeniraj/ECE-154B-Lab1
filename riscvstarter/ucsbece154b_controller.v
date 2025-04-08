@@ -124,7 +124,7 @@ module ucsbece154b_controller (
 
  // Execute Stage Control Signals
  always @(posedge clk) begin
-    if (reset) begin
+    if (FlushE_o) begin
         ALUSrcE_o <= 0;
         RegWriteE <= 0;
         MemWriteE <= 0;
@@ -174,10 +174,9 @@ module ucsbece154b_controller (
 
  // Hazard Detection
  wire lwStall = ((Rs1D_i == RdE_i) || (Rs2D_i == RdE_i)) && (op_i == instr_lw_op);
- wire branchStall = BranchD && (RegWriteD && (RdE_i == Rs1D_i || RdE_i == Rs2D_i) ||
-                   (MemWriteD && (RdE_i == Rs1D_i || RdE_i == Rs2D_i)));
- assign StallF_o = lwStall || branchStall;
- assign StallD_o = lwStall || branchStall;
+
+ assign StallF_o = lwStall;
+ assign StallD_o = lwStall;
  assign FlushD_o = PCSrcE_o || JumpD;
  assign FlushE_o = lwStall || PCSrcE_o;
 
