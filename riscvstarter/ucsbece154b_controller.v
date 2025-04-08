@@ -126,9 +126,21 @@ module ucsbece154b_controller (
  always @(posedge clk) begin
     if (reset) begin
         ALUSrcE_o <= 0;
+        RegWriteE <= 0;
+        MemWriteE <= 0;
+        JumpE <= 0;
+        BranchE <= 0;
+        ResultSrcE <= 2'b0;
+        ALUControlE_o <= 3'b0;
     end
     else if (!StallD_o) begin
         ALUSrcE_o <= ALUSrcD;
+        RegWriteE <= RegWriteD;
+        MemWriteE <= MemWriteD;
+        JumpE <= JumpD;
+        BranchE <= BranchD;
+        ResultSrcE <= ResultSrcD;
+        ALUControlE_o <= ALUControlD;
     end
  end
 
@@ -137,10 +149,14 @@ module ucsbece154b_controller (
     if (reset) begin
         MemWriteM_o <= 0;
         ResultSrcM_o <= 0;
+        RegWriteM <= 0;
+        ResultSrcM <= 2'b0;
     end
     else begin
-        MemWriteM_o <= MemWriteD;
-        ResultSrcM_o <= ResultSrcD;
+        MemWriteM_o <= MemWriteE;
+        ResultSrcM_o <= ResultSrcE;
+        RegWriteM <= RegWriteE;
+        ResultSrcM <= ResultSrcE;
     end
  end
 
