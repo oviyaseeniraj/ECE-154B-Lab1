@@ -34,11 +34,12 @@ module ucsbece154b_datapath (
 `include "ucsbece154b_defines.vh"
 
 // Pipeline registers
-reg [31:0] PCPlus4F, InstrD, PCPlus4D, RD1D, RD2D, ImmExtD;
+reg [31:0] PCPlus4F, InstrD, PCPlus4D, ImmExtD;
 reg [31:0] RD1E, RD2E, ImmExtE, PCPlus4E;
 reg [31:0] ALUResultW, ReadDataW, PCPlus4W;
 
 // Internal signals
+wire RD1D, RD2D;
 wire [31:0] PCNext, PCPlus4, PCTargetE;
 wire [31:0] ImmExt;
 wire [31:0] SrcAE, SrcBE, ALUResultE;
