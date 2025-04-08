@@ -54,20 +54,20 @@ module ucsbece154b_controller (
 
  reg RegWriteM_o;
 
+
  always @ * begin
     case (ALUOpD)
-      2'b00: ALUControlE_o = ALUcontrol_add;  // Load/Store uses ADD
-      2'b01: ALUControlE_o = ALUcontrol_sub;  // Branch uses SUB
-      2'b10: begin // R-type or I-type ALU instructions
-        case (funct3_i)
-          instr_addsub_funct3: ALUControlE_o = (RtypeSub) ? ALUcontrol_sub : ALUcontrol_add;
-          instr_slt_funct3:    ALUControlE_o = ALUcontrol_slt;
-          instr_or_funct3:      ALUControlE_o = ALUcontrol_or;
-          instr_and_funct3:    ALUControlE_o = ALUcontrol_and;
-          default:              ALUControlE_o = ALUcontrol_add;
-        endcase
-      end
-      default: ALUControlE_o = ALUcontrol_add;
+      ALUop_mem:    ALUControlE_o = ALUcontrol_add;  // Load/Store uses ADD
+      ALUop_beq:    ALUControlE_o = ALUcontrol_sub;  // Branch uses SUB
+      ALUop_other:  // R-type or I-type ALU instructions
+          case (funct3_i)
+              instr_addsub_funct3: ALUControlE_o = (RtypeSub) ? ALUcontrol_sub : ALUcontrol_add;
+              instr_slt_funct3:    ALUControlE_o = ALUcontrol_slt;
+              instr_or_funct3:     ALUControlE_o = ALUcontrol_or;
+              instr_and_funct3:    ALUControlE_o = ALUcontrol_and;
+              default:             ALUControlE_o = ALUcontrol_add;  // Default to add for undefined funct3
+          endcase
+      default:      ALUControlE_o = ALUcontrol_add;  // Default to add for undefined ALUOp
     endcase
  end
 
@@ -112,7 +112,8 @@ module ucsbece154b_controller (
  // Execute Stage Control Signals
  always @(posedge clk) begin
     if (reset) begin
-        ALUSrcE_o <= 0;
+        ALUSrcE_o <= SrcB_reg;  // Initialize to use register value
+        ALUControlE_o <= ALUcontrol_add;  // Initialize to add operation
     end
     else if (!StallD_o) begin
         ALUSrcE_o <= ALUSrcD;
