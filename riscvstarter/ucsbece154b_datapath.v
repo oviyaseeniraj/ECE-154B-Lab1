@@ -42,7 +42,7 @@ module ucsbece154b_datapath (
 
 // Pipeline registers
 reg [31:0] InstrD, PCPlus4D, ImmExtD, PCD, PCE;
-reg [31:0] RD1E, RD2E, ImmExtE, PCPlus4E, ImmExtW;
+reg [31:0] RD1E, RD2E, ImmExtE, ImmExtM, PCPlus4E, ImmExtW;
 reg [31:0] ALUResultW, ReadDataW, PCPlus4W, PCPlus4M;
 reg [31:0] WriteDataE;
 
