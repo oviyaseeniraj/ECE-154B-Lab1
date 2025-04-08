@@ -216,13 +216,5 @@ assign ResultW = (ResultSrcW_i == 2'b00) ? ALUResultW :
                 (ResultSrcW_i == 2'b11) ? ImmExtW :
                 32'b0;
 
-// In ucsbece154b_datapath.v
-always @(posedge clk) begin
-    $display("PC: %h, Instr: %h", PCF_o, InstrF_i);
-    if (RegWriteW_i && RdW_o != 0)
-        $display("Writeback: x%0d = %h", RdW_o, ResultW);
-    if (MemWriteM_o)
-        $display("Memory Write: %h = %h", ALUResultM_o, WriteDataM_o);
-end
 
 endmodule
