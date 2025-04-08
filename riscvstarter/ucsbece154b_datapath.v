@@ -1,9 +1,3 @@
-// ucsbece154b_datapath.v
-// ECE 154B, RISC-V pipelined processor 
-// All Rights Reserved
-// Copyright (c) 2024 UCSB ECE
-// Distribution Prohibited
-
 module ucsbece154b_datapath (
     input                clk, reset,
     input                PCSrcE_i,
@@ -19,7 +13,7 @@ module ucsbece154b_datapath (
     input          [2:0] ImmSrcD_i,
     output wire    [4:0] Rs1D_o,
     output wire    [4:0] Rs2D_o,
-    input  wire          FlushE_i,
+    input                FlushE_i,
     output reg     [4:0] Rs1E_o,
     output reg     [4:0] Rs2E_o, 
     output reg     [4:0] RdE_o, 
@@ -40,29 +34,24 @@ module ucsbece154b_datapath (
 `include "ucsbece154b_defines.vh"
 
 // Pipeline registers
-reg [31:0] PCPlus4F, InstrD, PCPlus4D, ImmExtD, PCD, PCE;
-reg [31:0] RD1E, RD2E, ImmExtE, PCPlus4E, ImmExtW;
-reg [31:0] ALUResultW, ReadDataW, PCPlus4W, PCPlus4M;
-reg [31:0] WriteDataE;
+reg [31:0] PCPlus4F, InstrD, PCPlus4D, RD1D, RD2D, ImmExtD;
+reg [31:0] RD1E, RD2E, ImmExtE, PCPlus4E;
+reg [31:0] ALUResultW, ReadDataW, PCPlus4W;
 
 // Internal signals
 wire [31:0] PCNext, PCPlus4, PCTargetE;
-wire [31:0] RD1D, RD2D;
-//wire [31:0] ImmExt;
+wire [31:0] ImmExt;
 wire [31:0] SrcAE, SrcBE, ALUResultE;
 wire [31:0] ResultW;
 wire [31:0] ForwardAEMuxOut, ForwardBEMuxOut;
 wire [31:0] ALUSrcBMuxOut;
-wire [4:0] RdD;
 
 // Instruction fields
 assign op_o = InstrD[6:0];
-assign RdD = InstrD[11:7];
 assign funct3_o = InstrD[14:12];
 assign funct7b5_o = InstrD[30];
 assign Rs1D_o = InstrD[19:15];
 assign Rs2D_o = InstrD[24:20];
-
 
 // Immediate generator
 always @ * begin
@@ -80,39 +69,26 @@ end
 assign PCPlus4 = PCF_o + 4;
 assign PCNext = PCSrcE_i ? PCTargetE : PCPlus4;
 
-// Initialize PC and pipeline registers properly
-always @(posedge clk) begin
+always @(posedge clk or posedge reset) begin
     if (reset) begin
-        PCF_o <= pc_start;       // Initialize to 0x00010000
-        PCPlus4F <= pc_start + 4; // Initialize PC+4
-        PCD <= 0;
-        PCPlus4D <= 0;
-        PCE <= 0;
-        PCPlus4E <= 0;
-        PCPlus4M <= 0;
-        PCPlus4W <= 0;
-    end
-    else if (!StallF_i) begin
+        PCF_o <= pc_start;
+        PCPlus4F <= pc_start + 4;
+    end else if (!StallF_i) begin
         PCF_o <= PCNext;
-        PCPlus4F <= PCPlus4;     // Update PC+4 each cycle
+        PCPlus4F <= PCPlus4;
     end
 end
 
 // Fetch-D pipeline register
-always @(posedge clk) begin
+always @(posedge clk or posedge reset) begin
     if (reset || FlushD_i) begin
         InstrD <= 32'b0;
-        PCD <= 32'b0;
         PCPlus4D <= 32'b0;
-    end
-    else if (!StallD_i) begin
+    end else if (!StallD_i) begin
         InstrD <= InstrF_i;
-        PCD <= PCF_o;
         PCPlus4D <= PCPlus4F;
     end
 end
-
-
 
 // Register file
 ucsbece154b_rf rf (
@@ -127,21 +103,18 @@ ucsbece154b_rf rf (
 );
 
 // Decode-Execute pipeline register
-always @(posedge clk) begin
+always @(posedge clk or posedge reset) begin
     if (reset || FlushE_i) begin
         RD1E <= 32'b0;
         RD2E <= 32'b0;
-        PCE <= 32'b0;
         ImmExtE <= 32'b0;
         Rs1E_o <= 5'b0;
         Rs2E_o <= 5'b0;
         RdE_o <= 5'b0;
         PCPlus4E <= 32'b0;
-    end
-    else begin
+    end else begin
         RD1E <= RD1D;
         RD2E <= RD2D;
-        PCE <= PCD;
         ImmExtE <= ImmExtD;
         Rs1E_o <= InstrD[19:15];
         Rs2E_o <= InstrD[24:20];
@@ -151,17 +124,17 @@ always @(posedge clk) begin
 end
 
 // Forwarding muxes
-assign ForwardAEMuxOut = (ForwardAE_i == 2'b10) ? ALUResultM_o :
-                        (ForwardAE_i == 2'b01) ? ResultW :
+assign ForwardAEMuxOut = (ForwardAE_i == forward_mem) ? ALUResultM_o :
+                        (ForwardAE_i == forward_wb) ? ResultW :
                         RD1E;
 
-assign ForwardBEMuxOut = (ForwardBE_i == 2'b10) ? ALUResultM_o :
-                        (ForwardBE_i == 2'b01) ? ResultW :
+assign ForwardBEMuxOut = (ForwardBE_i == forward_mem) ? ALUResultM_o :
+                        (ForwardBE_i == forward_wb) ? ResultW :
                         RD2E;
 
 // ALU source muxes
 assign SrcAE = ForwardAEMuxOut;
-assign ALUSrcBMuxOut = (ALUSrcE_i) ? ImmExtE : ForwardBEMuxOut;
+assign ALUSrcBMuxOut = ALUSrcE_i ? ImmExtE : ForwardBEMuxOut;
 assign SrcBE = ALUSrcBMuxOut;
 
 // ALU
@@ -173,48 +146,40 @@ ucsbece154b_alu alu (
     .zero_o(ZeroE_o)
 );
 
-assign PCTargetE = PCPlus4E + (ImmExtE << 1);
+assign PCTargetE = PCPlus4E + ImmExtE;
 
 // Execute-Memory pipeline register
-always @(posedge clk) begin
+always @(posedge clk or posedge reset) begin
     if (reset) begin
         ALUResultM_o <= 32'b0;
         WriteDataM_o <= 32'b0;
-        ImmExtE <= 32'b0;
         RdM_o <= 5'b0;
-        PCPlus4M <= 32'b0;
     end else begin
         ALUResultM_o <= ALUResultE;
         WriteDataM_o <= ForwardBEMuxOut;
-        ImmExtE <= ImmExtE;
         RdM_o <= RdE_o;
-        PCPlus4M <= PCPlus4E;
     end
 end
 
 // Memory-Writeback pipeline register
-always @(posedge clk) begin
+always @(posedge clk or posedge reset) begin
     if (reset) begin
         ALUResultW <= 32'b0;
         ReadDataW <= 32'b0;
-        ImmExtW <= 32'b0;
         PCPlus4W <= 32'b0;
         RdW_o <= 5'b0;
     end else begin
-        ALUResultW <= ALUResultM_o;
+        ALUResultW <= (ResultSrcM_i == MuxResult_aluout) ? ALUResultM_o : ReadDataM_i;
         ReadDataW <= ReadDataM_i;
-        ImmExtW <= ImmExtE;
-        PCPlus4W <= PCPlus4M;
+        PCPlus4W <= PCPlus4E;
         RdW_o <= RdM_o;
     end
 end
 
 // Result mux
-assign ResultW = (ResultSrcW_i == 2'b00) ? ALUResultW :
-                (ResultSrcW_i == 2'b01) ? ReadDataW :
-                (ResultSrcW_i == 2'b10) ? PCPlus4W :
-                (ResultSrcW_i == 2'b11) ? ImmExtW :
-                32'b0;
-
+assign ResultW = (ResultSrcW_i == MuxResult_aluout) ? ALUResultW :
+                (ResultSrcW_i == MuxResult_mem) ? ReadDataW :
+                (ResultSrcW_i == MuxResult_PCPlus4) ? PCPlus4W :
+                ImmExtE;  // For LUI instruction
 
 endmodule
