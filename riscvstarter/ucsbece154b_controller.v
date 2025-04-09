@@ -167,8 +167,8 @@ module ucsbece154b_controller (
         ResultSrcW_o <= 0;
     end
     else begin
-        RegWriteW_o <= RegWriteD;
-        ResultSrcW_o <= ResultSrcD;
+        RegWriteW_o <= RegWriteM;
+        ResultSrcW_o <= ResultSrcM;
     end
  end
 
