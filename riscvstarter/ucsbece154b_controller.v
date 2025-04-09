@@ -76,7 +76,7 @@ module ucsbece154b_controller (
     instr_jal_op:       controls = {1'b1,   imm_Jtype,  1'b1,       1'b0,   2'b10,          1'b0, ALUop_other,  1'b1};
     instr_lui_op:       controls = {1'b1,   imm_Utype,  1'b1,       1'b0,   2'b11,          1'b0, ALUop_other,  1'b0};
 	default: begin	    
-            controls = 12'bx_xxx_x_x_xx_x_xx_x;       
+            controls = 12'b0_000_0_0_00_0_00_0;       
             `ifdef SIM
                 $warning("Unsupported op given: %h", op_i);
             `else
