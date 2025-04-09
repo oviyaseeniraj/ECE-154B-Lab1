@@ -77,13 +77,11 @@ module ucsbece154b_controller (
     instr_lui_op:       controls = {1'b1,   imm_Utype,  1'b1,       1'b0,   2'b11,          1'b0, ALUop_other,  1'b0};
 	default: begin	    
             controls = 12'b0_000_0_0_00_0_00_0;       
-            /**
             `ifdef SIM
-                $warning("Unsupported op given: %h", op_i);
+                // $warning("Unsupported op given: %h", op_i);
             `else
             ;
             `endif
-            */
         end 
    endcase
  end
@@ -107,23 +105,19 @@ module ucsbece154b_controller (
            instr_and_funct3:  ALUControlD = ALUcontrol_and;  
            default: begin
                               ALUControlD = 3'bxxx;
-                /**
                `ifdef SIM
                    $warning("Unsupported funct3 given: %h", funct3_i);
                `else
                   ;
                `endif  
-               */
            end
        endcase
    default: 
-      /**
       `ifdef SIM
           $warning("Unsupported ALUop given: %h", ALUOp);
       `else
           ;
       `endif   
-      */
   endcase
  end
 
