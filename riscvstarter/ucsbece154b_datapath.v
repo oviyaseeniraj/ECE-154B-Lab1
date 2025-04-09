@@ -108,7 +108,7 @@ always @(posedge clk) begin
         PCD <= 32'b0;
         PCPlus4D <= 32'b0;
     end
-    if (StallD_i) begin
+    else if (StallD_i) begin
         // do nothing
     end
     else begin
@@ -144,24 +144,20 @@ end
 
 // Execute-Memory pipeline register
 always @(posedge clk) begin
-    begin
-        ALUResultM_o <= ALUResultE;
-        WriteDataM_o <= WriteDataE;
-        ImmExtM <= ImmExtE;
-        RdM_o <= RdE_o;
-        PCPlus4M <= PCPlus4E;
-    end
+    ALUResultM_o <= ALUResultE;
+    WriteDataM_o <= WriteDataE;
+    ImmExtM <= ImmExtE;
+    RdM_o <= RdE_o;
+    PCPlus4M <= PCPlus4E;
 end
 
 // Memory-Writeback pipeline register
 always @(posedge clk) begin
-    begin
-        ALUResultW <= ALUResultM_o;
-        ReadDataW <= ReadDataM_i;
-        ImmExtW <= ImmExtM;
-        PCPlus4W <= PCPlus4M;
-        RdW_o <= RdM_o;
-    end
+    ALUResultW <= ALUResultM_o;
+    ReadDataW <= ReadDataM_i;
+    ImmExtW <= ImmExtM;
+    PCPlus4W <= PCPlus4M;
+    RdW_o <= RdM_o;
 end
 
 // Forwarding muxes
