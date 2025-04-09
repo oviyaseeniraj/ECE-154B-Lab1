@@ -82,7 +82,7 @@ end
 
 // Register file
 ucsbece154b_rf rf (
-    .clk(clk),
+    .clk(~clk),
     .a1_i(Rs1D_o),
     .a2_i(Rs2D_o),
     .a3_i(RdW_o),
