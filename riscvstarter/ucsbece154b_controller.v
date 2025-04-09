@@ -173,7 +173,7 @@ module ucsbece154b_controller (
  end
 
  // Hazard Detection
- wire lwStall = ((Rs1D_i == RdE_i) || (Rs2D_i == RdE_i)) && (op_i == instr_lw_op);
+ wire lwStall = ((Rs1D_i == RdE_i) || (Rs2D_i == RdE_i)) && ResultSrcE[0];
 
  assign StallF_o = lwStall;
  assign StallD_o = lwStall;
