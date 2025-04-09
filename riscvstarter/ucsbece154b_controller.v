@@ -177,7 +177,7 @@ module ucsbece154b_controller (
 
  assign StallF_o = lwStall;
  assign StallD_o = lwStall;
- assign FlushD_o = PCSrcE_o || JumpD;
+ assign FlushD_o = PCSrcE_o;
  assign FlushE_o = lwStall || PCSrcE_o;
 
  // Forwarding Unit

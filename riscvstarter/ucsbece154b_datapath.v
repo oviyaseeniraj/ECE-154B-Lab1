@@ -44,7 +44,6 @@ module ucsbece154b_datapath (
 reg [31:0] InstrD, PCPlus4D, ImmExtD, PCD, PCE;
 reg [31:0] RD1E, RD2E, ImmExtE, ImmExtM, PCPlus4E, ImmExtW;
 reg [31:0] ALUResultW, ReadDataW, PCPlus4W, PCPlus4M;
-reg [31:0] WriteDataE;
 
 // Internal signals
 wire [31:0] RD1D, RD2D;
@@ -53,6 +52,7 @@ wire [31:0] SrcAE, SrcBE, ALUResultE;
 wire [31:0] ResultW;
 wire [31:0] ForwardAEMuxOut, ForwardBEMuxOut;
 wire [31:0] ALUSrcBMuxOut;
+wire [31:0] WriteDataE;
 wire [4:0] RdD;
 
 // Instruction fields
@@ -66,6 +66,7 @@ assign Rs2D_o = InstrD[24:20];
 assign PCTargetE = PCE + ImmExtE;
 assign PCPlus4F = PCF_o + 4;
 assign PCNext = PCSrcE_i ? PCTargetE : PCPlus4F; 
+assign WriteDataE = ForwardBEMuxOut;
 
 // Immediate generator
 always @ * begin
@@ -145,7 +146,7 @@ end
 always @(posedge clk) begin
     begin
         ALUResultM_o <= ALUResultE;
-        WriteDataM_o <= ForwardBEMuxOut;
+        WriteDataM_o <= WriteDataE;
         ImmExtM <= ImmExtE;
         RdM_o <= RdE_o;
         PCPlus4M <= PCPlus4E;
