@@ -102,16 +102,18 @@ ucsbece154b_alu alu (
 );
 
 // Fetch-D pipeline register
-always @(posedge clk) begin
-    if (FlushD_i) begin
+always @(posedge clk or posedge reset) begin
+    if (reset) begin
         InstrD <= 32'b0;
         PCD <= 32'b0;
         PCPlus4D <= 32'b0;
     end
-    else if (StallD_i) begin
-        // do nothing
+    else if (FlushD_i) begin
+        InstrD <= 32'b0;
+        PCD <= 32'b0;
+        PCPlus4D <= 32'b0;
     end
-    else begin
+    else if (!StallD_i) begin
         InstrD <= InstrF_i;
         PCD <= PCF_o;
         PCPlus4D <= PCPlus4F;
@@ -119,8 +121,18 @@ always @(posedge clk) begin
 end
 
 // Decode-Execute pipeline register
-always @(posedge clk) begin
-    if (FlushE_i) begin
+always @(posedge clk or posedge reset) begin
+    if (reset) begin
+        RD1E <= 32'b0;
+        RD2E <= 32'b0;
+        PCE <= 32'b0;
+        ImmExtE <= 32'b0;
+        Rs1E_o <= 5'b0;
+        Rs2E_o <= 5'b0;
+        RdE_o <= 5'b0;
+        PCPlus4E <= 32'b0;
+    end
+    else if (FlushE_i) begin
         RD1E <= 32'b0;
         RD2E <= 32'b0;
         PCE <= 32'b0;
@@ -143,21 +155,39 @@ always @(posedge clk) begin
 end
 
 // Execute-Memory pipeline register
-always @(posedge clk) begin
-    ALUResultM_o <= ALUResultE;
-    WriteDataM_o <= WriteDataE;
-    ImmExtM <= ImmExtE;
-    RdM_o <= RdE_o;
-    PCPlus4M <= PCPlus4E;
+always @(posedge clk or posedge reset) begin
+    if (reset) begin
+        ALUResultM_o <= 32'b0;
+        WriteDataM_o <= 32'b0;
+        ImmExtM <= 32'b0;
+        RdM_o <= 5'b0;
+        PCPlus4M <= 32'b0;
+    end
+    else begin
+        ALUResultM_o <= ALUResultE;
+        WriteDataM_o <= WriteDataE;
+        ImmExtM <= ImmExtE;
+        RdM_o <= RdE_o;
+        PCPlus4M <= PCPlus4E;
+    end
 end
 
 // Memory-Writeback pipeline register
-always @(posedge clk) begin
-    ALUResultW <= ALUResultM_o;
-    ReadDataW <= ReadDataM_i;
-    ImmExtW <= ImmExtM;
-    PCPlus4W <= PCPlus4M;
-    RdW_o <= RdM_o;
+always @(posedge clk or posedge reset) begin
+    if (reset) begin
+        ALUResultW <= 32'b0;
+        ReadDataW <= 32'b0;
+        ImmExtW <= 32'b0;
+        PCPlus4W <= 32'b0;
+        RdW_o <= 5'b0;
+    end
+    else begin
+        ALUResultW <= ALUResultM_o;
+        ReadDataW <= ReadDataM_i;
+        ImmExtW <= ImmExtM;
+        PCPlus4W <= PCPlus4M;
+        RdW_o <= RdM_o;
+    end
 end
 
 // Forwarding muxes
@@ -176,14 +206,12 @@ assign SrcAE = ForwardAEMuxOut;
 assign ALUSrcBMuxOut = (ALUSrcE_i) ? ImmExtE : ForwardBEMuxOut;
 assign SrcBE = ALUSrcBMuxOut;
 
-always @ (posedge reset or posedge clk) begin
-    if (StallF_i) begin
-        // do nothing
-    end
-    else if (reset) begin
+// PC register
+always @(posedge clk or posedge reset) begin
+    if (reset) begin
         PCF_o <= pc_start;
     end
-    else begin
+    else if (!StallF_i) begin
         PCF_o <= PCNext;
     end
 end
